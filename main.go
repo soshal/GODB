@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
     "sync"
 )
 
@@ -47,4 +48,20 @@ func (kv *KeyValueStore) Delete(key string) {
     defer kv.mu.Unlock() // Release lock when function exits
 
     delete(kv.data, key)
+}
+
+func main() {
+    kvStore := NewKeyValueStore()
+
+    // Demonstrate Create
+    kvStore.Create("exampleKey", "exampleValue")
+    fmt.Printf("Created: exampleKey -> %s\n", kvStore.Read("exampleKey"))
+
+    // Demonstrate Update
+    kvStore.Update("exampleKey", "newValue")
+    fmt.Printf("Updated: exampleKey -> %s\n", kvStore.Read("exampleKey"))
+
+    // Demonstrate Delete
+    kvStore.Delete("exampleKey")
+    fmt.Printf("Deleted: exampleKey -> %s\n", kvStore.Read("exampleKey"))
 }
