@@ -1,15 +1,20 @@
 package main
 
 import (
-	
-	
-	"sync"
+    "sync"
 )
 
-// to  hold our key-value pairs and synchronization mechanism:
-type  KeyValueStore struct {
-	data map[string]string // Map to hold key-value pairs
-	mu sync.RWMutex // Mutex for synchronization
+// KeyValueStore represents a simple in-memory key-value store
+type KeyValueStore struct {
+    data map[string]string // Map to hold key-value pairs
+    mu   sync.RWMutex      // Mutex for synchronization
+}
+
+// NewKeyValueStore creates a new instance of KeyValueStore
+func NewKeyValueStore() *KeyValueStore {
+    return &KeyValueStore{
+        data: make(map[string]string),
+    }
 }
 
 // Create adds a new key-value pair to the store
@@ -20,7 +25,6 @@ func (kv *KeyValueStore) Create(key, value string) {
     kv.data[key] = value // Add key-value pair to map
 }
 
-
 // Read retrieves the value for a given key
 func (kv *KeyValueStore) Read(key string) string {
     kv.mu.RLock() // Acquire read lock
@@ -28,7 +32,6 @@ func (kv *KeyValueStore) Read(key string) string {
 
     return kv.data[key]
 }
-
 
 // Update modifies the value for a given key
 func (kv *KeyValueStore) Update(key, value string) {
