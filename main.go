@@ -53,15 +53,15 @@ func (kv *KeyValueStore) Delete(key string) {
 func main() {
     kvStore := NewKeyValueStore()
 
-    // Demonstrate Create
+    // Demo Create
     kvStore.Create("exampleKey", "exampleValue")
     fmt.Printf("Created: exampleKey -> %s\n", kvStore.Read("exampleKey"))
 
-    // Demonstrate Update
+    // Demo Update
     kvStore.Update("exampleKey", "newValue")
     fmt.Printf("Updated: exampleKey -> %s\n", kvStore.Read("exampleKey"))
 
-    // Demonstrate Delete
+    // Demo Delete
     kvStore.Delete("exampleKey")
     fmt.Printf("Deleted: exampleKey -> %s\n", kvStore.Read("exampleKey"))
 }
