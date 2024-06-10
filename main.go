@@ -1,67 +1,102 @@
 package main
 
 import (
+    "encoding/json"
     "fmt"
+    "io/ioutil"
     "sync"
 )
 
-// KeyValueStore represents a simple in-memory key-value store
 type KeyValueStore struct {
-    data map[string]string // Map to hold key-value pairs
-    mu   sync.RWMutex      // Mutex for synchronization
+    data map[string]string
+    mu   sync.RWMutex
 }
 
-// NewKeyValueStore creates a new instance of KeyValueStore
 func NewKeyValueStore() *KeyValueStore {
     return &KeyValueStore{
         data: make(map[string]string),
     }
 }
 
-// Create adds a new key-value pair to the store
 func (kv *KeyValueStore) Create(key, value string) {
-    kv.mu.Lock() // Acquire write lock
-    defer kv.mu.Unlock() // Release lock when function exits
-
-    kv.data[key] = value // Add key-value pair to map
-}
-
-// Read retrieves the value for a given key
-func (kv *KeyValueStore) Read(key string) string {
-    kv.mu.RLock() // Acquire read lock
-    defer kv.mu.RUnlock() // Release lock when function exits
-
-    return kv.data[key]
-}
-
-// Update modifies the value for a given key
-func (kv *KeyValueStore) Update(key, value string) {
-    kv.mu.Lock() // Acquire write lock
-    defer kv.mu.Unlock() // Release lock when function exits
+    kv.mu.Lock()
+    defer kv.mu.Unlock()
 
     kv.data[key] = value
 }
 
-// Delete removes a key-value pair from the store
+func (kv *KeyValueStore) Read(key string) string {
+    kv.mu.RLock()
+    defer kv.mu.RUnlock()
+
+    return kv.data[key]
+}
+
+func (kv *KeyValueStore) Update(key, value string) {
+    kv.mu.Lock()
+    defer kv.mu.Unlock()
+
+    kv.data[key] = value
+}
+
 func (kv *KeyValueStore) Delete(key string) {
-    kv.mu.Lock() // Acquire write lock
-    defer kv.mu.Unlock() // Release lock when function exits
+    kv.mu.Lock()
+    defer kv.mu.Unlock()
 
     delete(kv.data, key)
 }
 
+func saveToFile(kv *KeyValueStore, filename string) error {
+    kv.mu.RLock()
+    defer kv.mu.RUnlock()
+
+    data, err := json.Marshal(kv.data)
+    if err != nil {
+        return err
+    }
+
+    err = ioutil.WriteFile(filename, data, 0644)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+func loadFromFile(kv *KeyValueStore, filename string) error {
+    kv.mu.Lock()
+    defer kv.mu.Unlock()
+
+    data, err := ioutil.ReadFile(filename)
+    if err != nil {
+        return err
+    }
+
+    err = json.Unmarshal(data, &kv.data)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
 func main() {
     kvStore := NewKeyValueStore()
+    filename := "kvstore.json"
 
-    // Demo Create
-    kvStore.Create("exampleKey", "exampleValue")
-    fmt.Printf("Created: exampleKey -> %s\n", kvStore.Read("exampleKey"))
+    err := loadFromFile(kvStore, filename)
+    if err != nil {
+        fmt.Println("No existing data found, starting with an empty store")
+    } else {
+        fmt.Println("Loaded existing data from file")
+    }
 
-    // Demo Update
-    kvStore.Update("exampleKey", "newValue")
-    fmt.Printf("Updated: exampleKey -> %s\n", kvStore.Read("exampleKey"))
+    
 
-    // Demo Delete
-    kvStore.Delete("exampleKey")
-    fmt.Printf("Deleted: exampleKey -> %s\n", kvStore.Read("exampleKey"))
+    err = saveToFile(kvStore, filename)
+    if err != nil {
+        fmt.Printf("Error saving data to file: %v\n", err)
+    } else {
+        fmt.Println("Data successfully saved to file")
+    }
 }
