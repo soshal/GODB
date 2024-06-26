@@ -80,7 +80,7 @@ func loadFromFile(kv *KeyValueStore, filename string) error {
     return nil
 }
 
-func main() {
+func mai() {
     kvStore := NewKeyValueStore()
     filename := "kvstore.json"
 
@@ -92,6 +92,9 @@ func main() {
     }
 
     
+    kvStore.Create("key2", "value")
+    kvStore.Create("key3", "value")
+    kvStore.Create("key4", "value")
 
     err = saveToFile(kvStore, filename)
     if err != nil {

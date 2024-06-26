@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyValueStore Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KeyValueStore Example</h1>
+
+        <div class="form-group">
+            <label for="keyInput">Key:</label>
+            <input type="text" id="keyInput" name="keyInput">
+        </div>
+
+        <div class="form-group">
+            <label for="valueInput">Value:</label>
+            <input type="text" id="valueInput" name="valueInput">
+        </div>
+
+        <div class="form-group">
+            <button onclick="createKeyValue()">Create</button>
+            <button onclick="readKeyValue()">Read</button>
+            <button onclick="updateKeyValue()">Update</button>
+            <button onclick="deleteKeyValue()">Delete</button>
+        </div>
+
+        <div class="result">
+            <p>Status: <span id="status">Waiting for action...</span></p>
+            <p>Result: <span id="result"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function createKeyValue() {
+            const key = document.getElementById('keyInput').value;
+            const value = document.getElementById('valueInput').value;
+
+            fetch(`/kvstore/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ key: key, value: value }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = "Create operation completed.";
+                document.getElementById('result').textContent = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = "Error occurred during create operation.";
+                document.getElementById('result').textContent = JSON.stringify(error);
+            });
+        }
+
+        function readKeyValue() {
+            const key = document.getElementById('keyInput').value;
+
+            fetch(`/kvstore/read?key=${encodeURIComponent(key)}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = "Read operation completed.";
+                document.getElementById('result').textContent = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = "Error occurred during read operation.";
+                document.getElementById('result').textContent = JSON.stringify(error);
+            });
+        }
+
+        function updateKeyValue() {
+            const key = document.getElementById('keyInput').value;
+            const value = document.getElementById('valueInput').value;
+
+            fetch(`/kvstore/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ key: key, value: value }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = "Update operation completed.";
+                document.getElementById('result').textContent = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = "Error occurred during update operation.";
+                document.getElementById('result').textContent = JSON.stringify(error);
+            });
+        }
+
+        function deleteKeyValue() {
+            const key = document.getElementById('keyInput').value;
+
+            fetch(`/kvstore/delete?key=${encodeURIComponent(key)}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = "Delete operation completed.";
+                document.getElementById('result').textContent = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = "Error occurred during delete operation.";
+                document.getElementById('result').textContent = JSON.stringify(error);
+            });
+        }
+    </script>
+</body>
+</html>
